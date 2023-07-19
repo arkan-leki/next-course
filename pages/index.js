@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 import { getFeaturedEvents } from '@/helper/api-util'
 import EventList from '@/components/events/EventList'
+import NewsletterRegistration from '@/components/input/newsletter-registration'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -21,7 +22,8 @@ export default function Home(props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
-        <h1>All Events</h1>
+        <NewsletterRegistration />
+        <h1 className="center">All Events</h1>
         <div>
           <EventList items={events} />
         </div>
