@@ -1,16 +1,24 @@
+import NotificationContext from '@/store/notification-context';
 import classes from './newsletter-registration.module.css';
-import { useRef } from 'react';
+import { useContext, useRef } from 'react';
 
 function NewsletterRegistration() {
-  const  emailRef = useRef();
+  const  emailRef = useRef()
+  const notificationCtx = useContext(NotificationContext);
+
 
   function registrationHandler(event) {
     event.preventDefault();
 
     // fetch user input (state or refs)
     const enteredEmail = emailRef.current.value;
-    console.log(enteredEmail);
-    // optional: validate input
+
+    notificationCtx.showNotification({
+      title: 'Signing up...',
+      message: 'We are trying to sign you up...',
+      status: 'pending'
+    });
+      // optional: validate input
     if (enteredEmail.trim().length === 0|| !enteredEmail.includes('@')) {
       console.log('Invalid email');
       return;
@@ -21,9 +29,30 @@ function NewsletterRegistration() {
       body: JSON.stringify({ email: enteredEmail }),
       headers: {
         'Content-Type': 'application/json',
+      },
+    })
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
       }
-    }).then(response => response.json()).then(data => console.log(data));
-
+      return response.json().then((data) => {
+        throw new Error(data.message);
+      });
+    })
+    .then((data) => {
+      notificationCtx.showNotification({
+        title: 'Success!',
+        message: 'Successfully registered for newsletter!',
+        status: 'success',
+      });
+    })
+    .catch((error) => {
+      notificationCtx.showNotification({
+        title: 'Error!',
+        message: error.message || 'Something went wrong!',
+        status: 'error',
+      });
+    });
   }
 
   return (

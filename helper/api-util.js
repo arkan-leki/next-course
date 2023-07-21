@@ -34,3 +34,5 @@ export async function getFilteredEvents(dateFilter) {
 
     return filteredEvents;
 }
+
+// mongodb+srv://arkan_laki:<arkan1234>@cluster0.7vxzzgx.mongodb.net/?retryWrites=true&w=majority

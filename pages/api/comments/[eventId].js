@@ -1,6 +1,15 @@
+import { connectDatabase, getAllDocuments, insertDocument } from "@/helper/db";
+
 // newsletters api routes
-export default function handler(req, res) {
+export default async function handler(req, res) {
     const eventId = req.query.eventId;
+    let client;
+    try {
+        client = await connectDatabase();
+    } catch (err) {
+        res.status(500).json({ message: 'Error connecting to database' });
+        return;
+    }
 
     if (req.method === 'POST') {
         // Process a POST request
@@ -12,39 +21,31 @@ export default function handler(req, res) {
         }
 
         const newComment = {
-            "id": new Date().toISOString(),
             name,
             email,
             text,
+            eventId
         }
 
-        console.log('====================================');
-        console.log(newComment);
-        console.log('====================================');
+        try {
+            await insertDocument(client, 'comments', newComment);
+        } catch (err) {
+            res.status(500).json({ message: 'Error saving to database' });
+        }
 
         res.status(201).json({ message: 'Comment added', comment: newComment });
 
     }
 
     if (req.method === 'GET') {
-        // Process a POST request
-        const comments = [
-            {
-                "id": 1,
-                'name': "John Doe",
-                'email': "XXXXXXXXXXXX",
-                'text': "This is a comment",
-            },
-            {
-                "id": 2,
-                'name': "John Doe",
-                'email': "XXXXXXXXXXXX",
-                'text': "This is a comment",
-            },
-        ]
-
-        res.status(201).json({ comments: comments });
+        try {
+            const comments  = await getAllDocuments(client, 'comments', { eventId: eventId }, { _id: -1 });
+            res.status(200).json({ comments });
+        }catch (err) {
+            res.status(500).json({ message: 'Getting comments failed' });
+        }
 
     }
+    client.close();
 
 }
